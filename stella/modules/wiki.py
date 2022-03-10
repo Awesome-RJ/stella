@@ -11,7 +11,7 @@ from stella import dispatcher
 from stella.modules.disable import DisableAbleCommandHandler
 @run_async
 def wiki(bot: Bot, update: Update):
-    msg = update.effective_message.reply_to_message if update.effective_message.reply_to_message else update.effective_message
+    msg = update.effective_message.reply_to_message or update.effective_message
     res = ""
     if msg == update.effective_message:
         search = msg.text.split(" ", maxsplit=1)[1]

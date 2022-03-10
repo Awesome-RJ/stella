@@ -12,10 +12,12 @@ def shout(bot: Bot, update: Update, args: List[str]):
 
     msg = "```"
     text = " ".join(args)
-    result = []
-    result.append(' '.join([s for s in text]))
-    for pos, symbol in enumerate(text[1:]):
-        result.append(symbol + ' ' + '  ' * pos + symbol)
+    result = [' '.join(list(text))]
+    result.extend(
+        f'{symbol} ' + '  ' * pos + symbol
+        for pos, symbol in enumerate(text[1:])
+    )
+
     result = list("\n".join(result))
     result[0] = text[0]
     result = "".join(result)

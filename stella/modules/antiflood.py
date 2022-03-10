@@ -68,9 +68,9 @@ def set_flood(bot: Bot, update: Update, args: List[str]) -> str:
     user = update.effective_user  # type: Optional[User]
     message = update.effective_message  # type: Optional[Message]
 
-    if len(args) >= 1:
+    if args:
         val = args[0].lower()
-        if val == "off" or val == "no" or val == "0":
+        if val in ["off", "no", "0"]:
             sql.set_flood(chat.id, 0)
             message.reply_text("Anti-flood has been disabled.")
 
@@ -174,11 +174,10 @@ def __chat_settings__(chat_id, user_id):
     soft_flood = sql.get_flood_strength(chat_id)
     if limit == 0:
         return "*Not* currently enforcing flood control."
+    if soft_flood:
+        return "Anti-flood is set to `{}` messages and *KICK* if exceeded.".format(limit)
     else:
-        if soft_flood:
-            return "Anti-flood is set to `{}` messages and *KICK* if exceeded.".format(limit)
-        else:
-            return "Anti-flood is set to `{}` messages and *BAN* if exceeded.".format(limit)
+        return "Anti-flood is set to `{}` messages and *BAN* if exceeded.".format(limit)
 __help__ = """
 You know how sometimes, people join, send 100 messages, and ruin your chat? With antiflood, that happens no more!
 Antiflood allows you to take action on users that send more than x messages in a row. Exceeding the set flood \

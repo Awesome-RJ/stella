@@ -52,7 +52,7 @@ def list_handlers(bot: Bot, update: Update):
         else:
             filter_list += entry
 
-    if not filter_list == BASIC_FILTER_STRING:
+    if filter_list != BASIC_FILTER_STRING:
         filter_list = BASIC_FILTER_STRING + html.escape(filter_list)
         update.effective_message.reply_text(filter_list, parse_mode=telegram.ParseMode.HTML)
 
@@ -171,7 +171,7 @@ def reply_filter(bot: Bot, update: Update):
 
     chat_filters = sql.get_chat_triggers(chat.id)
     for keyword in chat_filters:
-        pattern = r"( |^|[^\w])" + re.escape(keyword) + r"( |$|[^\w])"
+        pattern = f"( |^|[^\\w]){re.escape(keyword)}( |$|[^\\w])"
         if re.search(pattern, to_match, flags=re.IGNORECASE):
             filt = sql.get_filter(chat.id, keyword)
             if filt.is_sticker:
@@ -196,14 +196,14 @@ def reply_filter(bot: Bot, update: Update):
                                        disable_web_page_preview=True,
                                        reply_markup=keyboard)
                 except BadRequest as excp:
-                    if excp.message == "Unsupported url protocol":
-                        message.reply_text("You seem to be trying to use an unsupported url protocol. Telegram "
-                                           "doesn't support buttons for some protocols, such as tg://. Please try "
-                                           "again, or ask in @stellatm for help.")
-                    elif excp.message == "Reply message not found":
+                    if excp.message == "Reply message not found":
                         bot.send_message(chat.id, filt.reply, parse_mode=ParseMode.MARKDOWN,
                                          disable_web_page_preview=True,
                                          reply_markup=keyboard)
+                    elif excp.message == "Unsupported url protocol":
+                        message.reply_text("You seem to be trying to use an unsupported url protocol. Telegram "
+                                           "doesn't support buttons for some protocols, such as tg://. Please try "
+                                           "again, or ask in @stellatm for help.")
                     else:
                         message.reply_text("This note could not be sent, as it is incorrectly formatted. Ask in "
                                            "@stellatm if you can't figure out why!")

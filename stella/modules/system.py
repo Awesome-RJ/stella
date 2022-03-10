@@ -22,34 +22,34 @@ def pingme():
     else:
         out = subprocess.check_output("ping -c 1 1.0.0.1 | grep time=", shell=True).decode()
     splitOut = out.split(' ')
-    stringtocut = ""
-    for line in splitOut:
-        if(line.startswith('time=') or line.startswith('time<')):
-            stringtocut=line
-            break
+    stringtocut = next(
+        (
+            line
+            for line in splitOut
+            if (line.startswith('time=') or line.startswith('time<'))
+        ),
+        "",
+    )
+
     newstra=stringtocut.split('=')
     if len(newstra) == 1:
         under = True
         newstra=stringtocut.split('<')
     newstr=""
-    if os.name == 'nt':
-        newstr=newstra[1].split('ms')
-    else:
-        newstr=newstra[1].split(' ') #redundant split, but to try and not break windows ping
-    ping_time = float(newstr[0])
-    return ping_time
+    newstr = newstra[1].split('ms') if os.name == 'nt' else newstra[1].split(' ')
+    return float(newstr[0])
 
 
 @run_async
 def status(bot: Bot, update: Update):
     user_id = update.effective_user.id
     reply = "*System Status:* operational\n"
-    reply += "*Python version:* "+python_version()+"\n"
+    reply += f"*Python version:* {python_version()}" + "\n"
     if user_id in SUDO_USERS or user_id in SUPPORT_USERS or user_id == OWNER_ID:
         pingSpeed = pingme()
-        reply += "*Ping speed:* "+str(pingSpeed)+"ms 🏓\n"
-    reply += "*CAS API version:* "+str(cas.vercheck())+"\n"
-    reply += "*GitHub API version:* "+str(git.vercheck())+"\n"
+        reply += f"*Ping speed:* {str(pingSpeed)}" + "ms 🏓\n"
+    reply += f"*CAS API version:* {str(cas.vercheck())}" + "\n"
+    reply += f"*GitHub API version:* {str(git.vercheck())}" + "\n"
     update.effective_message.reply_text(reply, parse_mode=ParseMode.MARKDOWN)
 
 
